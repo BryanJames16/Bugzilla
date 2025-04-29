@@ -57,7 +57,7 @@ RUN cpanm Template::Toolkit \
             Email::Sender \ 
             Email::MIME::Modifier
 # RUN cpanm Daemon::Generic 
-# RUN cpanm Apache2::Const 
+RUN cpanm mod_perl2 
 # RUN cpanm Apache2::Request 
 # RUN cpanm Apache2::Build 
 RUN cpanm XML::Parser 
