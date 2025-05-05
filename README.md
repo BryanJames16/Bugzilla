@@ -21,3 +21,5 @@
 </div>
 
 ---
+
+This project aims to create a more seamless deployment for Bugzilla as containerized and cloud native application.
