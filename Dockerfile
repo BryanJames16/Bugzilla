@@ -1,5 +1,7 @@
+# Use Alpine base for secure image base
 FROM alpine:3.21 AS bugzilla
 
+# Prepare package inastallation
 RUN apk upgrade --no-cache
 
 # Install Bugzilla Dependencies
@@ -48,10 +50,12 @@ RUN apk add apache2=2.4.62-r0 && \
             build-base=0.5-r3 \ 
             curl=8.12.1-r1
 
+# Version checks
 RUN httpd --version && \ 
     perl --version && \ 
     cpanm --version
 
+# Install Bugzilla d3pendencies through cpanm
 RUN cpanm Template::Toolkit \ 
             Email::Address::XS \ 
             Email::Sender \ 
