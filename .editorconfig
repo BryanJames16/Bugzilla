@@ -1,0 +1,66 @@
+# top-most EditorConfig file
+root = true
+
+# Default for all files
+[*]
+end_of_line = lf
+insert_final_newline = true
+charset = utf-8
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# YAML files
+[*.yaml]
+indent_style = space
+indent_size = 2
+
+[*.yml]
+indent_style = space
+indent_size = 2
+
+# SVG files
+[*.svg]
+indent_style = space
+indent_size = 2
+
+# Dockerfiles
+[Dockerfile]
+indent_style = space
+indent_size = 2
+
+# Perl files
+[*.pl]
+indent_style = space
+indent_size = 4
+
+[*.pm]
+indent_style = space
+indent_size = 4
+
+# C / C++ files
+[*.c]
+indent_style = space
+indent_size = 4
+
+[*.h]
+indent_style = space
+indent_size = 4
+
+[*.cpp]
+indent_style = space
+indent_size = 4
+
+[*.hpp]
+indent_style = space
+indent_size = 4
+
+# HTML
+[*.html]
+indent_style = space
+indent_size = 2
+
+# CSS
+[*.css]
+indent_style = space
+indent_size = 2
