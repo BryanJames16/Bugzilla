@@ -6,6 +6,7 @@ RUN apk upgrade --no-cache
 
 # Install Bugzilla Dependencies
 RUN apk add apache2=2.4.62-r0 && \
+    apk add apache2-dev=2.4.62-r0 && \
     apk add mariadb-client=11.4.5-r0 && \
     apk add netcat-openbsd=1.226.1.1-r0 && \
     apk add perl=5.40.1-r1 && \
