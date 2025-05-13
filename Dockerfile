@@ -57,10 +57,10 @@ RUN httpd --version && \
     cpanm --version
 
 # Install Bugzilla d3pendencies through cpanm
-RUN cpanm Template::Toolkit \
-            Email::Address::XS \
-            Email::Sender \
-            Email::MIME::Modifier
+RUN cpanm --notest --skip-installed Template::Toolkit \
+            --notest --skip-installed Email::Address::XS \
+            --notest --skip-installed Email::Sender \
+            --notest --skip-installed Email::MIME::Modifier
 # RUN cpanm Daemon::Generic
 RUN cpanm mod_perl2 -v
 # RUN cpanm Apache2::Request
