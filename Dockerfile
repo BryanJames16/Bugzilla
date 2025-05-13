@@ -62,19 +62,19 @@ RUN cpanm --notest --skip-installed Template::Toolkit \
             --notest --skip-installed Email::Sender \
             --notest --skip-installed Email::MIME::Modifier
 # RUN cpanm Daemon::Generic
-RUN cpanm mod_perl2 -v
+RUN cpanm --notest --skip-installed mod_perl2 -v
 # RUN cpanm Apache2::Request
 # RUN cpanm Apache2::Build
-RUN cpanm XML::Parser
+RUN cpanm --notest --skip-installed XML::Parser
 # RUN cpanm Encode::Detect
 # RUN cpanm TheSchwartz
 # RUN cpanm CGI::JSONRPC
-RUN cpanm Net::LDAP
+RUN cpanm --notest --skip-installed Net::LDAP
 # RUN cpanm HTML
-RUN cpanm CGI \
-            GD::Graph \
-            Template::Plugin::GD \
-            HTML::FormatText::WithLinks
+RUN cpanm --notest --skip-installed CGI \
+            --notest --skip-installed GD::Graph \
+            --notest --skip-installed Template::Plugin::GD \
+            --notest --skip-installed HTML::FormatText::WithLinks
 
 # WORKDIR /var/www/html
 # COPY --chown=root:www-data . /var/www/html
