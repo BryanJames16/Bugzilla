@@ -61,6 +61,7 @@ RUN cpanm --notest --skip-installed Template::Toolkit \
             --notest --skip-installed Email::Address::XS \
             --notest --skip-installed Email::Sender \
             --notest --skip-installed Email::MIME::Modifier
+# Check if Daemon Generic can run with no test and skip installed flag
 # RUN cpanm Daemon::Generic
 RUN cpanm --notest --skip-installed mod_perl2 -v
 # RUN cpanm Apache2::Request
