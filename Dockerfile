@@ -64,6 +64,7 @@ RUN cpanm --notest --skip-installed Template::Toolkit \
 # Check if Daemon Generic can run with no test and skip installed flag
 # RUN cpanm Daemon::Generic
 RUN cpanm --notest --skip-installed mod_perl2 -v
+# Check if Apache 2 can be covered by mod_perl2
 # RUN cpanm Apache2::Request
 # RUN cpanm Apache2::Build
 RUN cpanm --notest --skip-installed XML::Parser
