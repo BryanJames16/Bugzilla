@@ -1,0 +1,90 @@
+# ========================
+# OS-specific
+# ========================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+desktop.ini
+
+# ========================
+# IDEs / Editors
+# ========================
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+*.code-workspace
+
+# ========================
+# Node & Package Managers (if JS is used alongside)
+# ========================
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# ========================
+# Logs & Temporary Files
+# ========================
+*.log
+*.tmp
+*.swp
+*.bak
+*.backup
+*.old
+*.orig
+*.rej
+
+# ========================
+# PHP
+# ========================
+vendor/
+composer.lock
+composer.phar
+
+# ========================
+# Perl
+# ========================
+blib/
+*.bs
+*.o
+*.pm.tdy
+*.so
+*.dll
+*.dylib
+*.bundle
+pm_to_blib
+cover_db/
+nytprof.out
+*.profraw
+*.gcno
+*.gcda
+
+# ========================
+# HTML/CSS (no build artifacts, but ignore minified if auto-generated)
+*.min.css
+*.min.js
+*.map
+
+# ========================
+# Docker
+# ========================
+**/Dockerfile~
+docker-compose.override.yml
+.docker/
+*.tar
+*.img
+*.container
+.env
+.env.*
+.dockerignore
+
+# ========================
+# OS & User files
+# ========================
+*.~lock.*          # LibreOffice lock files
+*.bak
+*.tmp
+*~
