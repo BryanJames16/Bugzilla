@@ -87,5 +87,5 @@ RUN cpanm --notest --skip-installed CGI \
 # RUN rm -rf /var/www/html/data /var/www/html/localconfig /var/www/html/index.html && \
 #     mkdir /var/www/html/data
 
-# EXPOSE 80/tcp
-# ENTRYPOINT ["docker/startup.sh"]
+EXPOSE 80/tcp
+ENTRYPOINT ["docker/startup.sh"]
