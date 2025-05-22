@@ -83,9 +83,9 @@ RUN cpanm --notest --skip-installed CGI \
 
 # # We don't want Docker droppings accessible by the web browser since they
 # # might contain setup info you don't want public
-# RUN rm -rf /var/www/html/docker* /var/www/html/Dockerfile*
-# RUN rm -rf /var/www/html/data /var/www/html/localconfig /var/www/html/index.html && \
-#     mkdir /var/www/html/data
+RUN rm -rf /var/www/html/docker* /var/www/html/Dockerfile*
+RUN rm -rf /var/www/html/data /var/www/html/localconfig /var/www/html/index.html && \
+    mkdir /var/www/html/data
 
 EXPOSE 80/tcp
 ENTRYPOINT ["docker/startup.sh"]
