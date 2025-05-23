@@ -78,8 +78,8 @@ RUN cpanm --notest --skip-installed CGI \
             --notest --skip-installed Template::Plugin::GD \
             --notest --skip-installed HTML::FormatText::WithLinks
 
-# WORKDIR /var/www/html
-# COPY --chown=root:www-data . /var/www/html
+WORKDIR /var/www/html
+COPY --chown=root:www-data . /var/www/html
 
 # # We don't want Docker droppings accessible by the web browser since they
 # # might contain setup info you don't want public
