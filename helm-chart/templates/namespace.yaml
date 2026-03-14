@@ -1,0 +1,9 @@
+{{- if .Values.namespace.create }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ include "bugzilla.namespace" . }}
+  labels:
+    {{- include "bugzilla.labels" . | nindent 4 }}
+    app.kubernetes.io/part-of: bugzilla-platform
+{{- end }}

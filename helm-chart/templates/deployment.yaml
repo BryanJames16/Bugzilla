@@ -1,0 +1,178 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "bugzilla.fullname" . }}
+  namespace: {{ include "bugzilla.namespace" . }}
+  labels:
+    {{- include "bugzilla.labels" . | nindent 4 }}
+    app.kubernetes.io/component: web
+    app.kubernetes.io/part-of: bugzilla-platform
+spec:
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      {{- include "bugzilla.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "bugzilla.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/part-of: bugzilla-platform
+        {{- with .Values.podLabels }}
+{{ toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+{{ toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "bugzilla.serviceAccountName" . }}
+      automountServiceAccountToken: {{ .Values.serviceAccount.automountServiceAccountToken }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+{{ toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- range . }}
+        - maxSkew: {{ .maxSkew }}
+          topologyKey: {{ .topologyKey }}
+          whenUnsatisfiable: {{ .whenUnsatisfiable }}
+          labelSelector:
+            matchLabels:
+              {{- include "bugzilla.selectorLabels" $ | nindent 14 }}
+        {{- end }}
+      {{- end }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            {{- range .Values.affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution }}
+            - weight: {{ .weight }}
+              podAffinityTerm:
+                topologyKey: {{ .podAffinityTerm.topologyKey }}
+                labelSelector:
+                  matchLabels:
+                    {{- include "bugzilla.selectorLabels" $ | nindent 20 }}
+            {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.initContainer.enabled }}
+      initContainers:
+        - name: volume-permissions
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/bash
+            - -lc
+            - {{ .Values.initContainer.command | quote }}
+          securityContext:
+{{ toYaml .Values.containerSecurityContext | nindent 12 }}
+          volumeMounts:
+            - name: bugzilla-data
+              mountPath: /var/www/html/bugzilla/data
+            - name: apache-logs
+              mountPath: /var/log/apache2
+      {{- end }}
+      containers:
+        - name: bugzilla
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "bugzilla.fullname" . }}-app-config
+          env:
+            - name: BUGZILLA_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "bugzilla.secretName" . }}
+                  key: BUGZILLA_ADMIN_PASSWORD
+            - name: BUGZILLA_DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "bugzilla.secretName" . }}
+                  key: BUGZILLA_DB_PASS
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.probes.readiness.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.probes.liveness.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.probes.startup.path }}
+              port: http
+            periodSeconds: {{ .Values.probes.startup.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.startup.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.startup.failureThreshold }}
+          resources:
+{{ toYaml .Values.resources | nindent 12 }}
+          securityContext:
+{{ toYaml .Values.containerSecurityContext | nindent 12 }}
+          volumeMounts:
+            - name: bugzilla-data
+              mountPath: /var/www/html/bugzilla/data
+            - name: apache-logs
+              mountPath: /var/log/apache2
+            {{- if .Values.apacheConfig.enabled }}
+            - name: apache-hardening
+              mountPath: /etc/apache2/conf-enabled/z-k8s-hardening.conf
+              subPath: z-k8s-hardening.conf
+              readOnly: true
+            {{- end }}
+            {{- if .Values.theme.enabled }}
+            - name: bugzilla-theme
+              mountPath: /var/www/html/bugzilla/skins/custom/global.css
+              subPath: global.css
+              readOnly: true
+            {{- end }}
+      volumes:
+        - name: bugzilla-data
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "bugzilla.pvcName" . }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: apache-logs
+          {{- if .Values.logs.emptyDir }}
+          emptyDir:
+{{ toYaml .Values.logs.emptyDir | nindent 12 }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        {{- if .Values.apacheConfig.enabled }}
+        - name: apache-hardening
+          configMap:
+            name: {{ include "bugzilla.fullname" . }}-apache-config
+        {{- end }}
+        {{- if .Values.theme.enabled }}
+        - name: bugzilla-theme
+          configMap:
+            name: {{ include "bugzilla.fullname" . }}-theme-config
+        {{- end }}

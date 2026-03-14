@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "bugzilla.fullname" . }}-app-config
+  namespace: {{ include "bugzilla.namespace" . }}
+  labels:
+    {{- include "bugzilla.labels" . | nindent 4 }}
+    app.kubernetes.io/component: web
+data:
+  BUGZILLA_URLBASE: {{ .Values.appConfig.urlbase | quote }}
+  BUGZILLA_ADMIN_EMAIL: {{ .Values.appConfig.adminEmail | quote }}
+  BUGZILLA_ADMIN_REALNAME: {{ .Values.appConfig.adminRealname | quote }}
+  BUGZILLA_DB_DRIVER: {{ .Values.appConfig.db.driver | quote }}
+  BUGZILLA_DB_HOST: {{ .Values.appConfig.db.host | quote }}
+  BUGZILLA_DB_PORT: {{ .Values.appConfig.db.port | quote }}
+  BUGZILLA_DB_NAME: {{ .Values.appConfig.db.name | quote }}
+  BUGZILLA_DB_USER: {{ .Values.appConfig.db.user | quote }}
+  BUGZILLA_DB_SOCK: {{ .Values.appConfig.db.sock | quote }}
+  BUGZILLA_SQLITE_DB: {{ .Values.appConfig.sqliteDb | quote }}
+{{- if .Values.apacheConfig.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "bugzilla.fullname" . }}-apache-config
+  namespace: {{ include "bugzilla.namespace" . }}
+  labels:
+    {{- include "bugzilla.labels" . | nindent 4 }}
+    app.kubernetes.io/component: web
+data:
+  z-k8s-hardening.conf: |
+    ServerName {{ .Values.apacheConfig.serverName }}
+{{ .Values.apacheConfig.extraConfig | nindent 4 }}
+{{- end }}
+{{- if .Values.theme.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "bugzilla.fullname" . }}-theme-config
+  namespace: {{ include "bugzilla.namespace" . }}
+  labels:
+    {{- include "bugzilla.labels" . | nindent 4 }}
+    app.kubernetes.io/component: web
+data:
+  global.css: |
+{{ .Values.theme.customGlobalCss | nindent 4 }}
+{{- end }}

@@ -1,0 +1,17 @@
+1. Update secrets before production use:
+   helm upgrade --install {{ .Release.Name }} . \
+     --namespace {{ include "bugzilla.namespace" . }} \
+     --set secrets.adminPassword=... \
+     --set secrets.dbPassword=...
+
+2. Update the external database endpoint in values.yaml:
+   appConfig.db.driver, appConfig.db.host, appConfig.db.port, appConfig.db.name, appConfig.db.user
+
+3. Ensure the storage class supports ReadWriteMany if persistence is enabled.
+
+4. Access the application:
+{{- if .Values.ingress.enabled }}
+   https://{{ (index .Values.ingress.hosts 0).host }}
+{{- else }}
+   kubectl port-forward svc/{{ include "bugzilla.fullname" . }} 8080:{{ .Values.service.port }} -n {{ include "bugzilla.namespace" . }}
+{{- end }}

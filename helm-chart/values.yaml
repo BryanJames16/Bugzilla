@@ -1,0 +1,224 @@
+namespace:
+  create: false
+  name: ""
+
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: bugzilla
+  tag: v1.0.0
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+replicaCount: 2
+revisionHistoryLimit: 5
+
+serviceAccount:
+  create: true
+  name: ""
+  automountServiceAccountToken: false
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  fsGroup: 33
+  fsGroupChangePolicy: OnRootMismatch
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  runAsUser: 0
+  runAsGroup: 0
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+  capabilities:
+    drop:
+      - ALL
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: bugzilla.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: bugzilla-tls
+      hosts:
+        - bugzilla.example.com
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 1Gi
+  limits:
+    cpu: "2"
+    memory: 2Gi
+
+probes:
+  readiness:
+    path: /index.cgi
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+  liveness:
+    path: /index.cgi
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    failureThreshold: 5
+  startup:
+    path: /index.cgi
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 30
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 60
+        - type: Pods
+          value: 2
+          periodSeconds: 60
+      selectPolicy: Max
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Percent
+          value: 25
+          periodSeconds: 60
+      selectPolicy: Max
+
+pdb:
+  enabled: true
+  minAvailable: 1
+
+networkPolicy:
+  enabled: true
+  ingressNamespacesAny: true
+  egressAllowDns: true
+  egressAdditionalPorts:
+    - port: 3306
+      protocol: TCP
+    - port: 5432
+      protocol: TCP
+    - port: 443
+      protocol: TCP
+
+persistence:
+  enabled: true
+  existingClaim: ""
+  accessModes:
+    - ReadWriteMany
+  size: 20Gi
+  storageClass: shared-filesystem
+
+logs:
+  emptyDir: {}
+
+initContainer:
+  enabled: true
+  command: >-
+    mkdir -p /var/www/html/bugzilla/data/db /var/www/html/bugzilla/data/extensions /var/log/apache2 &&
+    chown -R www-data:www-data /var/www/html/bugzilla/data /var/log/apache2
+
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          topologyKey: kubernetes.io/hostname
+
+nodeSelector: {}
+tolerations: []
+
+appConfig:
+  urlbase: https://bugzilla.example.com/
+  adminEmail: admin@example.com
+  adminRealname: Bugzilla Administrator
+  db:
+    driver: mariadb
+    # Use Pg for PostgreSQL.
+    host: mariadb.example.internal
+    port: "3306"
+    name: bugzilla
+    user: bugzilla
+    sock: ""
+  sqliteDb: bugs.db
+
+secrets:
+  existingSecret: ""
+  adminPassword: change-me
+  dbPassword: change-me
+
+apacheConfig:
+  enabled: true
+  serverName: bugzilla.example.com
+  extraConfig: |
+    ServerTokens Prod
+    ServerSignature Off
+    TraceEnable Off
+    FileETag None
+
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always edit Set-Cookie ^(.*)$ "$1; HttpOnly; Secure; SameSite=Lax"
+
+theme:
+  enabled: true
+  customGlobalCss: |
+    body {
+      background: linear-gradient(180deg, #f7f3eb 0%, #ffffff 28%);
+    }
+
+    #header,
+    #banner,
+    .bz_short_desc_container {
+      border-color: #c26d28;
+    }
+
+    a,
+    a:visited {
+      color: #8a3c10;
+    }
+
+    input[type="submit"],
+    input[type="button"],
+    .button {
+      background: #8a3c10;
+      border-color: #6d2f0c;
+      color: #fff;
+    }
