@@ -25,10 +25,10 @@
 This project aims to create a more seamless deployment for Bugzilla as containerized and cloud native application. As of the moment, there are lots of dependencies and set up needed in order for Bugzilla to properly run. We want this experience to improve and create a more cross-platform appraoch in running and deploying Bugzilla. Furthermore, we want our deployments to be secure and easy to configure.
 
 ## 🏁 Goals
-- [ ] Improve ease of deployment of Bugzila and its dependencies through containerization.
-- [ ] Improve backend configuration of Bugzilla by introducing declarative set up through Kubernetes and Helm Charts.
-- [ ] Secure Bugzilla container deployments through secure container image base.
-- [ ] GItOps approach in deployment and managing Bugzilla.
+- [x] Improve ease of deployment of Bugzila and its dependencies through containerization.
+- [x] Improve backend configuration of Bugzilla by introducing declarative set up through Kubernetes and Helm Charts.
+- [x] Secure Bugzilla container deployments through secure container image base.
+- [ ] GitOps approach in deployment and managing Bugzilla.
 
 ## 🤝 Contributing
 To be added
