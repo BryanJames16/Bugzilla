@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bugzilla-app-config
+  namespace: bugzilla
+  labels:
+    app.kubernetes.io/name: bugzilla
+    app.kubernetes.io/component: web
+data:
+  BUGZILLA_URLBASE: "https://bugzilla.example.com/"
+  BUGZILLA_ADMIN_EMAIL: "admin@example.com"
+  BUGZILLA_ADMIN_REALNAME: "Bugzilla Administrator"
+  BUGZILLA_DB_DRIVER: "mariadb"
+  # Use "Pg" for PostgreSQL.
+  BUGZILLA_DB_HOST: "mariadb.example.internal"
+  BUGZILLA_DB_PORT: "3306"
+  BUGZILLA_DB_NAME: "bugzilla"
+  BUGZILLA_DB_USER: "bugzilla"
+  BUGZILLA_DB_SOCK: ""
+  BUGZILLA_SQLITE_DB: "bugs.db"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bugzilla-apache-config
+  namespace: bugzilla
+  labels:
+    app.kubernetes.io/name: bugzilla
+    app.kubernetes.io/component: web
+data:
+  z-k8s-hardening.conf: |
+    ServerName bugzilla.example.com
+    ServerTokens Prod
+    ServerSignature Off
+    TraceEnable Off
+    FileETag None
+
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always edit Set-Cookie ^(.*)$ "$1; HttpOnly; Secure; SameSite=Lax"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bugzilla-theme-config
+  namespace: bugzilla
+  labels:
+    app.kubernetes.io/name: bugzilla
+    app.kubernetes.io/component: web
+data:
+  global.css: |
+    body {
+      background: linear-gradient(180deg, #f7f3eb 0%, #ffffff 28%);
+    }
+
+    #header,
+    #banner,
+    .bz_short_desc_container {
+      border-color: #c26d28;
+    }
+
+    a,
+    a:visited {
+      color: #8a3c10;
+    }
+
+    input[type="submit"],
+    input[type="button"],
+    .button {
+      background: #8a3c10;
+      border-color: #6d2f0c;
+      color: #fff;
+    }

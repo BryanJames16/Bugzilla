@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bugzilla
+  labels:
+    app.kubernetes.io/name: bugzilla
+    app.kubernetes.io/part-of: bugzilla-platform

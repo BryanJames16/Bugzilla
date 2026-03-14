@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: bugzilla-data
+  namespace: bugzilla
+  labels:
+    app.kubernetes.io/name: bugzilla
+    app.kubernetes.io/component: web
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Gi
+  # Set this to a RWX-capable storage class in your cluster.
+  storageClassName: shared-filesystem
