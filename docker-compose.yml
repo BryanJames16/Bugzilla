@@ -1,0 +1,49 @@
+services:
+  bugzilla:
+    build:
+      context: ${BUGZILLA_BUILD_CONTEXT:-.}
+      dockerfile: ${BUGZILLA_DOCKERFILE:-Dockerfile}
+    image: ${BUGZILLA_IMAGE:-bugzilla:v1.0.0}
+    container_name: ${BUGZILLA_CONTAINER_NAME:-bugzilla}
+    restart: ${BUGZILLA_RESTART_POLICY:-unless-stopped}
+    ports:
+      - "${BUGZILLA_HOST_PORT:-8080}:8080"
+    environment:
+      # Default backend: SQLite
+      # Leave the external DB values empty when using SQLite.
+      BUGZILLA_URLBASE: ${BUGZILLA_URLBASE:-http://localhost:8080/}
+      BUGZILLA_ADMIN_EMAIL: ${BUGZILLA_ADMIN_EMAIL:-admin@example.com}
+      BUGZILLA_ADMIN_PASSWORD: ${BUGZILLA_ADMIN_PASSWORD:-BugzillaAdmin123!}
+      BUGZILLA_ADMIN_REALNAME: ${BUGZILLA_ADMIN_REALNAME:-Bugzilla Administrator}
+      BUGZILLA_DB_DRIVER: ${BUGZILLA_DB_DRIVER:-sqlite}
+      BUGZILLA_DB_HOST: ${BUGZILLA_DB_HOST:-}
+      BUGZILLA_DB_PORT: ${BUGZILLA_DB_PORT:-}
+      BUGZILLA_DB_SOCK: ${BUGZILLA_DB_SOCK:-}
+      BUGZILLA_DB_NAME: ${BUGZILLA_DB_NAME:-}
+      BUGZILLA_DB_USER: ${BUGZILLA_DB_USER:-}
+      BUGZILLA_DB_PASS: ${BUGZILLA_DB_PASS:-}
+      BUGZILLA_SQLITE_DB: ${BUGZILLA_SQLITE_DB:-bugs.db}
+      # External MySQL 8 / MariaDB example:
+      # BUGZILLA_DB_DRIVER: mysql
+      # BUGZILLA_DB_HOST: host.docker.internal
+      # BUGZILLA_DB_PORT: "3306"
+      # BUGZILLA_DB_NAME: bugzilla
+      # BUGZILLA_DB_USER: root
+      # BUGZILLA_DB_PASS: admin
+      #
+      # External PostgreSQL example:
+      # BUGZILLA_DB_DRIVER: Pg
+      # BUGZILLA_DB_HOST: your-postgres-host
+      # BUGZILLA_DB_PORT: "5432"
+      # BUGZILLA_DB_NAME: bugzilla
+      # BUGZILLA_DB_USER: bugzilla
+      # BUGZILLA_DB_PASS: secret
+    volumes:
+      - type: bind
+        source: ${BUGZILLA_DATA_DIR:-./bugzilla-runtime/data}
+        target: /var/www/html/bugzilla/data
+      - type: bind
+        source: ${BUGZILLA_APACHE_LOG_DIR:-./bugzilla-runtime/apache-logs}
+        target: /var/log/apache2
+    extra_hosts:
+      - "${BUGZILLA_EXTRA_HOST:-host.docker.internal:host-gateway}"

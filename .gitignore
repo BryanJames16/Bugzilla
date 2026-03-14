@@ -17,6 +17,11 @@ desktop.ini
 *.code-workspace
 
 # ========================
+# Bugzilla Runtime
+# ========================
+bugzilla-runtime/
+
+# ========================
 # Node & Package Managers (if JS is used alongside)
 # ========================
 node_modules/

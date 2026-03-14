@@ -7,12 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     APACHE_RUN_DIR=/var/run/apache2 \
     APACHE_LOCK_DIR=/var/lock/apache2 \
     APACHE_LOG_DIR=/var/log/apache2 \
-    APACHE_PID_FILE=/var/run/apache2/apache2.pid \
-    BUGZILLA_URLBASE=http://localhost:8080/ \
-    BUGZILLA_ADMIN_EMAIL=admin@example.com \
-    BUGZILLA_ADMIN_PASSWORD=BugzillaAdmin123! \
-    BUGZILLA_ADMIN_REALNAME="Bugzilla Administrator" \
-    BUGZILLA_SQLITE_DB=bugs.db
+    APACHE_PID_FILE=/var/run/apache2/apache2.pid
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -40,6 +35,8 @@ RUN set -eux; \
       libappconfig-perl \
       libcgi-pm-perl \
       libdate-calc-perl \
+      libdbd-mysql-perl \
+      libdbd-pg-perl \
       libdbd-sqlite3-perl \
       libdbi-perl \
       libdbix-connector-perl \
@@ -72,7 +69,9 @@ RUN set -eux; \
     done; \
     apt-get install -y --no-install-recommends "${install_args[@]}"; \
     sed -ri 's/^Listen 80$/Listen 8080/' /etc/apache2/ports.conf; \
+    printf 'ServerName localhost\n' > /etc/apache2/conf-available/servername.conf; \
     a2dissite 000-default; \
+    a2enconf servername; \
     a2enmod cgi expires headers rewrite; \
     rm -rf /var/lib/apt/lists/*
 
@@ -80,7 +79,7 @@ WORKDIR /var/www/html
 
 COPY --chown=root:www-data bugzilla-5.2/ ${BUGZILLA_HOME}/
 COPY docker/apache-bugzilla.conf /etc/apache2/sites-available/bugzilla.conf
-COPY docker/checksetup_answers_sqlite.txt /usr/local/share/bugzilla/checksetup_answers_sqlite.txt
+COPY docker/checksetup_answers.txt /usr/local/share/bugzilla/checksetup_answers.txt
 COPY docker/startup-sqlite.sh /usr/local/bin/bugzilla-startup
 
 # Bugzilla's own Build.PL is the authoritative source for required and
