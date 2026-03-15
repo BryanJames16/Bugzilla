@@ -1,5 +1,8 @@
 FROM debian:bookworm-slim
 
+LABEL maintainer="Bryan James"
+LABEL description="Docker image for Bugzilla 5.2."
+
 ENV DEBIAN_FRONTEND=noninteractive \
     BUGZILLA_HOME=/var/www/html/bugzilla \
     APACHE_RUN_USER=www-data \
@@ -97,8 +100,7 @@ RUN set -eux; \
     a2ensite bugzilla; \
     chmod 0755 /usr/local/bin/bugzilla-startup; \
     mkdir -p ${BUGZILLA_HOME}/data ${BUGZILLA_HOME}/data/db ${BUGZILLA_HOME}/data/extensions ${APACHE_RUN_DIR} ${APACHE_LOCK_DIR} ${APACHE_LOG_DIR}; \
-    chown -R root:www-data ${BUGZILLA_HOME}; \
-    chown -R www-data:www-data ${BUGZILLA_HOME}/data ${APACHE_RUN_DIR} ${APACHE_LOCK_DIR} ${APACHE_LOG_DIR}; \
+    chown -R www-data:www-data ${BUGZILLA_HOME} ${APACHE_RUN_DIR} ${APACHE_LOCK_DIR} ${APACHE_LOG_DIR}; \
     find ${BUGZILLA_HOME} -type d -exec chmod 0755 {} +; \
     find ${BUGZILLA_HOME} -type f -exec chmod 0644 {} +; \
     find ${BUGZILLA_HOME} -name '*.cgi' -exec chmod 0755 {} +; \
@@ -112,5 +114,7 @@ EXPOSE 8080
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=5 \
   CMD curl -fsS http://127.0.0.1:8080/index.cgi >/dev/null || exit 1
+
+USER www-data
 
 ENTRYPOINT ["tini", "--", "/usr/local/bin/bugzilla-startup"]

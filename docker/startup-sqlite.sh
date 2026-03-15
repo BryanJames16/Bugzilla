@@ -70,11 +70,16 @@ mkdir -p \
   "${APACHE_LOCK_DIR:-/var/lock/apache2}" \
   "${APACHE_LOG_DIR:-/var/log/apache2}"
 
-chown -R www-data:www-data \
+for required_path in \
   "${BUGZILLA_HOME}/data" \
   "${APACHE_RUN_DIR:-/var/run/apache2}" \
   "${APACHE_LOCK_DIR:-/var/lock/apache2}" \
-  "${APACHE_LOG_DIR:-/var/log/apache2}"
+  "${APACHE_LOG_DIR:-/var/log/apache2}"; do
+  if [ ! -w "${required_path}" ]; then
+    echo "Required path is not writable by $(id -un): ${required_path}" >&2
+    exit 1
+  fi
+done
 
 cp "${ANSWER_TEMPLATE}" "${ANSWER_FILE}"
 perl -0pi -e 'sub sq { my $s = shift; $s =~ s/\\/\\\\/g; $s =~ s/'"'"'/\\'"'"'/g; return $s; } s/__ADMIN_EMAIL__/sq($ENV{ADMIN_EMAIL})/ge; s/__ADMIN_PASSWORD__/sq($ENV{ADMIN_PASSWORD})/ge; s/__ADMIN_REALNAME__/sq($ENV{ADMIN_REALNAME})/ge; s/__DB_DRIVER__/sq($ENV{DB_DRIVER})/ge; s/__DB_HOST__/sq($ENV{DB_HOST})/ge; s/__DB_SOCK__/sq($ENV{DB_SOCK})/ge; s/__DB_NAME__/sq($ENV{DB_NAME})/ge; s/__DB_USER__/sq($ENV{DB_USER})/ge; s/__DB_PASS__/sq($ENV{DB_PASS})/ge; s/__DB_PORT__/$ENV{DB_PORT}/g; s#__URLBASE__#sq($ENV{URLBASE})#ge;' "${ANSWER_FILE}"
