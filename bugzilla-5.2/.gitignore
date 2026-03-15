@@ -1,0 +1,12 @@
+/**/.htaccess
+/lib/*
+/template/en/custom
+/docs/en/html
+/docs/en/txt
+/docs/en/pdf
+/skins/custom
+/graphs
+/data
+/localconfig
+/index.html
+.DS_Store
