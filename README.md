@@ -28,10 +28,10 @@ This project aims to create a more seamless deployment for Bugzilla as container
 - [x] Improve ease of deployment of Bugzila and its dependencies through containerization.
 - [x] Improve backend configuration of Bugzilla by introducing declarative set up through Kubernetes and Helm Charts.
 - [x] Secure Bugzilla container deployments through secure container image base.
-- [ ] GitOps approach in deployment and managing Bugzilla.
+- [x] GitOps approach in deployment and managing Bugzilla.
 
 ## 🤝 Contributing
-To be added
+Please feel free to create a fork and open a pull request.
 
 ## 🪪 License
 [Mozilla Public License v2.0](./LICENSE)
